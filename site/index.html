@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEC4DATA — Segurança que antecipa a ameaça</title>
+<meta name="description" content="SOC, MDR, Threat Intelligence, Penetration Testing, Resposta a Incidentes e Forense Digital para organizações angolanas e africanas.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#05080a;
+    --bg-alt:#080d11;
+    --panel:#0c1317;
+    --line:#1c2830;
+    --cyan:#00e6f6;
+    --cyan-dim:#0a8fa3;
+    --text:#dbe6ea;
+    --text-dim:#7e929a;
+    --alert:#ff5470;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:'Share Tech Mono', monospace;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.font-display{ font-family:'Orbitron', sans-serif; letter-spacing:0.02em; margin:0; }
+  p{margin:0;}
+  a{color:inherit; text-decoration:none;}
+  ul{margin:0; padding:0; list-style:none;}
+  img{max-width:100%; display:block;}
+  :focus-visible{ outline:2px solid var(--cyan); outline-offset:3px; }
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 24px; }
+  .eyebrow{
+    font-size:0.75rem; letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--cyan); font-weight:700; display:inline-block; margin-bottom:1rem;
+  }
+  .eyebrow::before{content:'[ ';} .eyebrow::after{content:' ]';}
+  section{ padding:6rem 0; border-bottom:1px solid var(--line); }
+  .alt{ background:var(--bg-alt); }
+  .btn{
+    display:inline-flex; align-items:center; gap:0.5rem;
+    padding:0.85rem 1.6rem; font-family:'Share Tech Mono',monospace;
+    font-size:0.85rem; letter-spacing:0.06em; text-transform:uppercase;
+    border:1px solid var(--cyan); border-radius:2px; cursor:pointer;
+    transition:background .2s, color .2s, transform .15s;
+    background:transparent; color:var(--cyan);
+  }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn-solid{ background:var(--cyan); color:#04191c; border-color:var(--cyan); }
+  .btn-solid:hover{ background:#3af1ff; }
+
+  /* ---------- NAV ---------- */
+  .nav{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    background:rgba(5,8,10,0.82); backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav .wrap{ display:flex; align-items:center; justify-content:space-between; height:72px; }
+  .logo{ font-family:'Orbitron',sans-serif; font-weight:900; font-size:1.05rem; letter-spacing:0.08em; color:var(--text); }
+  .logo span{ color:var(--cyan); }
+  .nav-links{ display:flex; gap:2rem; align-items:center; }
+  .nav-links a{ font-size:0.8rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-dim); transition:color .15s; }
+  .nav-links a:hover{ color:var(--cyan); }
+  .nav-toggle{ display:none; background:none; border:1px solid var(--line); color:var(--cyan); width:42px; height:42px; border-radius:2px; cursor:pointer; }
+  @media (max-width:860px){
+    .nav-links{
+      position:absolute; top:72px; left:0; right:0; background:var(--bg);
+      flex-direction:column; align-items:flex-start; gap:0; border-bottom:1px solid var(--line);
+      max-height:0; overflow:hidden; transition:max-height .25s ease;
+    }
+    .nav-links.open{ max-height:400px; }
+    .nav-links a{ padding:1rem 24px; width:100%; border-top:1px solid var(--line); }
+    .nav-toggle{ display:block; }
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding-top:calc(72px + 5rem); min-height:92vh; display:flex; align-items:center;
+    border-bottom:1px solid var(--line);
+    background:
+      radial-gradient(ellipse at 80% 20%, rgba(0,230,246,0.07), transparent 55%),
+      var(--bg);
+  }
+  .hero .wrap{ display:grid; grid-template-columns:1.15fr 1fr; gap:3rem; align-items:center; }
+  .hero h1{ font-size:clamp(2.1rem, 4.4vw, 3.6rem); line-height:1.12; color:#fff; margin-bottom:1.4rem; }
+  .hero p.lead{ color:var(--text-dim); font-size:1.02rem; max-width:46ch; margin-bottom:2.2rem; }
+  .hero-ctas{ display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:2.6rem; }
+  .hero-stats{ display:flex; gap:2.2rem; flex-wrap:wrap; }
+  .hero-stats div{ }
+  .hero-stats .num{ font-family:'Orbitron',sans-serif; color:var(--cyan); font-size:1.15rem; font-weight:700; }
+  .hero-stats .lbl{ font-size:0.72rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.08em; }
+
+  .radar-wrap{ display:flex; justify-content:center; }
+  .radar{ position:relative; width:min(360px, 82vw); height:min(360px,82vw); border-radius:50%; border:1px solid rgba(0,230,246,0.28); }
+  .radar-rings{ position:absolute; inset:0; border-radius:50%;
+    background:repeating-radial-gradient(circle, transparent 0 15%, rgba(0,230,246,0.14) 15% 15.6%); }
+  .radar-cross::before, .radar-cross::after{ content:''; position:absolute; background:rgba(0,230,246,0.16); }
+  .radar-cross::before{ left:0; right:0; top:50%; height:1px; }
+  .radar-cross::after{ top:0; bottom:0; left:50%; width:1px; }
+  .radar-sweep{
+    position:absolute; inset:0; border-radius:50%;
+    background:conic-gradient(from 0deg, rgba(0,230,246,0.4), transparent 32%, transparent 100%);
+    animation:spin 4.5s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .blip{ position:absolute; width:7px; height:7px; border-radius:50%; background:var(--cyan); box-shadow:0 0 8px 2px rgba(0,230,246,0.6); animation:blip 3.2s ease-in-out infinite; }
+  @keyframes blip{ 0%,100%{opacity:0; transform:scale(.4);} 50%{opacity:1; transform:scale(1);} }
+  .radar-core{ position:absolute; top:50%; left:50%; width:8px; height:8px; margin:-4px; border-radius:50%; background:var(--cyan); }
+
+  /* ---------- BRACKET CARD (signature) ---------- */
+  .bracket{ position:relative; background:var(--panel); border:1px solid var(--line); padding:1.9rem; }
+  .bracket::before, .bracket::after{ content:''; position:absolute; width:14px; height:14px; }
+  .bracket::before{ top:-1px; left:-1px; border-top:2px solid var(--cyan); border-left:2px solid var(--cyan); }
+  .bracket::after{ bottom:-1px; right:-1px; border-bottom:2px solid var(--cyan); border-right:2px solid var(--cyan); }
+
+  /* ---------- SOBRE ---------- */
+  .sobre .wrap{ display:grid; grid-template-columns:1.2fr 1fr; gap:3.5rem; align-items:start; }
+  .sobre h2{ font-size:clamp(1.5rem,2.6vw,2.1rem); color:#fff; margin-bottom:1.3rem; }
+  .sobre p{ color:var(--text-dim); margin-bottom:1.1rem; max-width:58ch; }
+  .stat-grid{ display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .stat-grid .bracket{ text-align:center; padding:1.4rem 1rem; }
+  .stat-grid .num{ font-family:'Orbitron',sans-serif; color:var(--cyan); font-size:1.5rem; font-weight:700; }
+  .stat-grid .lbl{ font-size:0.7rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.06em; margin-top:.3rem;}
+
+  /* ---------- GRIDS ---------- */
+  .section-head{ max-width:60ch; margin-bottom:3rem; }
+  .section-head h2{ font-size:clamp(1.5rem,2.6vw,2.1rem); color:#fff; }
+  .grid-services{ display:grid; grid-template-columns:repeat(4,1fr); gap:1.2rem; }
+  .grid-products{ display:grid; grid-template-columns:repeat(2,1fr); gap:1.2rem; }
+  .grid-blog{ display:grid; grid-template-columns:repeat(3,1fr); gap:1.2rem; }
+  .grid-team{ display:grid; grid-template-columns:repeat(4,1fr); gap:1.2rem; }
+  @media (max-width:980px){
+    .grid-services{ grid-template-columns:repeat(2,1fr); }
+    .grid-products{ grid-template-columns:1fr; }
+    .grid-blog{ grid-template-columns:repeat(2,1fr); }
+    .grid-team{ grid-template-columns:repeat(2,1fr); }
+    .sobre .wrap{ grid-template-columns:1fr; }
+    .hero .wrap{ grid-template-columns:1fr; }
+    .radar-wrap{ order:-1; }
+  }
+  @media (max-width:640px){
+    .grid-services, .grid-blog, .grid-team{ grid-template-columns:1fr; }
+    section{ padding:4rem 0; }
+  }
+
+  .icon-badge{ width:42px; height:42px; border:1px solid var(--cyan-dim); border-radius:2px; display:flex; align-items:center; justify-content:center; color:var(--cyan); margin-bottom:1.1rem; }
+  .icon-badge svg{ width:20px; height:20px; }
+  .card-title{ font-family:'Orbitron',sans-serif; font-size:1rem; color:#fff; margin-bottom:0.6rem; }
+  .card-text{ color:var(--text-dim); font-size:0.88rem; }
+
+  .product-card{ display:flex; flex-direction:column; gap:0.9rem; }
+  .product-card .tag{ font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--cyan-dim); }
+  .product-card ul{ display:flex; flex-direction:column; gap:0.4rem; margin-top:0.4rem; }
+  .product-card li{ font-size:0.82rem; color:var(--text-dim); padding-left:1.1rem; position:relative; }
+  .product-card li::before{ content:'▸'; position:absolute; left:0; color:var(--cyan); }
+
+  .academia{ margin-top:1.4rem; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1.4rem; padding:2rem; }
+  .academia h3{ font-size:1.15rem; color:#fff; margin-bottom:.5rem; }
+  .academia p{ color:var(--text-dim); max-width:52ch; font-size:0.9rem; }
+
+  .blog-card{ display:flex; flex-direction:column; }
+  .blog-card .meta{ font-size:0.72rem; color:var(--cyan-dim); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.6rem; }
+  .blog-card .card-title{ margin-bottom:0.5rem; }
+  .blog-card .card-text{ flex:1; }
+  .blog-card .readmore{ margin-top:1rem; font-size:0.78rem; color:var(--cyan); text-transform:uppercase; letter-spacing:0.06em; }
+
+  .team-card{ text-align:center; }
+  .team-card .photo{ width:72px; height:72px; border-radius:50%; margin:0 auto 1rem; background:var(--bg-alt); border:1px solid var(--cyan-dim); display:flex; align-items:center; justify-content:center; font-family:'Orbitron',sans-serif; color:var(--cyan); font-size:1.1rem; overflow:hidden; }
+  .team-card .photo img{ width:100%; height:100%; object-fit:cover; }
+  .team-card .cargo{ font-size:0.76rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.05em; }
+
+  .testimonial-card{ }
+  .testimonial-card .quote{ color:var(--text); font-size:0.95rem; margin-bottom:1.2rem; }
+  .testimonial-card .who{ font-size:0.8rem; color:var(--cyan-dim); }
+
+  /* ---------- CONTACTO ---------- */
+  .contacto .wrap{ display:grid; grid-template-columns:0.85fr 1.15fr; gap:3rem; }
+  .contact-info .item{ margin-bottom:1.6rem; }
+  .contact-info .lbl{ font-size:0.72rem; color:var(--cyan-dim); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:0.3rem; }
+  .contact-info .val{ color:var(--text); font-size:0.95rem; }
+  form.bracket{ display:grid; gap:1.1rem; }
+  .field{ display:flex; flex-direction:column; gap:0.4rem; }
+  .field label{ font-size:0.72rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.06em; }
+  .field input, .field select, .field textarea{
+    background:var(--bg); border:1px solid var(--line); color:var(--text);
+    padding:0.75rem 0.9rem; font-family:'Share Tech Mono',monospace; font-size:0.88rem; border-radius:2px;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--cyan); outline:none; }
+  .row-2{ display:grid; grid-template-columns:1fr 1fr; gap:1.1rem; }
+  @media (max-width:860px){ .contacto .wrap{ grid-template-columns:1fr; } .row-2{ grid-template-columns:1fr; } }
+  .form-msg{ font-size:0.85rem; padding:0.8rem 1rem; border-radius:2px; display:none; }
+  .form-msg.show{ display:block; }
+  .form-msg.ok{ border:1px solid var(--cyan-dim); color:var(--cyan); }
+  .form-msg.err{ border:1px solid var(--alert); color:var(--alert); }
+
+  /* ---------- FOOTER ---------- */
+  footer{ padding:3.5rem 0 2rem; }
+  footer .wrap{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:2.5rem; margin-bottom:2.5rem; }
+  footer .col h4{ font-size:0.78rem; color:var(--cyan); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:1rem; }
+  footer .col a, footer .col span{ display:block; color:var(--text-dim); font-size:0.85rem; margin-bottom:0.6rem; }
+  footer .col a:hover{ color:var(--cyan); }
+  .foot-bottom{ border-top:1px solid var(--line); padding-top:1.5rem; text-align:center; font-size:0.76rem; color:var(--text-dim); }
+
+  /* ---------- REVEAL ---------- */
+  .reveal{ opacity:0; transform:translateY(16px); transition:opacity .6s ease, transform .6s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a href="#top" class="logo">[<span>SEC</span>4DATA]</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="#sobre">Sobre</a>
+      <a href="#servicos">Serviços</a>
+      <a href="#produtos">Produtos</a>
+      <a href="#blog">Blog</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false">☰</button>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">SOC · MDR · THREAT INTELLIGENCE</p>
+        <h1 id="heroTitulo">Segurança que antecipa a ameaça</h1>
+        <p class="lead" id="heroSubtitulo">Operações de segurança 24/7, inteligência de ameaças e resposta a incidentes para organizações angolanas e africanas.</p>
+        <div class="hero-ctas">
+          <a href="#contacto" class="btn btn-solid">Falar com o SOC</a>
+          <a href="#servicos" class="btn">Ver Serviços</a>
+        </div>
+        <div class="hero-stats">
+          <div><div class="num">24/7</div><div class="lbl">Monitorização</div></div>
+          <div><div class="num">08</div><div class="lbl">Serviços especializados</div></div>
+          <div><div class="num">AO</div><div class="lbl">Luanda, Angola</div></div>
+        </div>
+      </div>
+      <div class="radar-wrap" aria-hidden="true">
+        <div class="radar radar-cross">
+          <div class="radar-rings"></div>
+          <div class="radar-sweep"></div>
+          <div class="radar-core"></div>
+          <div class="blip" style="top:28%; left:64%; animation-delay:0s;"></div>
+          <div class="blip" style="top:58%; left:22%; animation-delay:1.1s;"></div>
+          <div class="blip" style="top:70%; left:68%; animation-delay:2.1s;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sobre alt" id="sobre">
+    <div class="wrap">
+      <div class="reveal">
+        <p class="eyebrow">Sobre a SEC4DATA</p>
+        <h2>Cibersegurança operacional, pensada para Angola.</h2>
+        <p>A SEC4DATA é uma empresa de cibersegurança sediada em Luanda, focada em operações de segurança geridas — SOC, MDR e Threat Intelligence — para organizações que não podem parar.</p>
+        <p>Combinamos tecnologia de deteção e resposta com conhecimento profundo do contexto regulatório e de ameaças angolano e africano, da conformidade com a Lei n.º 22/11 à resposta a incidentes no terreno.</p>
+      </div>
+      <div class="stat-grid reveal">
+        <div class="bracket"><div class="num">24/7</div><div class="lbl">Deteção &amp; Resposta</div></div>
+        <div class="bracket"><div class="num">08</div><div class="lbl">Áreas de Serviço</div></div>
+        <div class="bracket"><div class="num">04</div><div class="lbl">Plataformas Próprias</div></div>
+        <div class="bracket"><div class="num">15</div><div class="lbl">Certificações — Academia</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="servicos" id="servicos">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow">Serviços</p>
+        <h2>Cobertura completa de operações de segurança</h2>
+      </div>
+      <div class="grid-services" id="servicosGrid"></div>
+    </div>
+  </section>
+
+  <section class="produtos alt" id="produtos">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow">Produtos</p>
+        <h2>Plataformas próprias, construídas pela nossa equipa</h2>
+      </div>
+      <div class="grid-products" id="produtosGrid"></div>
+      <div class="academia bracket reveal">
+        <div>
+          <h3>Academia SEC4DATA</h3>
+          <p>15 certificações em 7 percursos — CyberStart, Blue Team, Red Team, Purple Team e Security Expert APEX — com conteúdo, quiz e laboratório em cada módulo.</p>
+        </div>
+        <a href="#contacto" class="btn">Saber mais</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="blog" id="blog">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow">Blog</p>
+        <h2>Análises e boas práticas de segurança</h2>
+      </div>
+      <div class="grid-blog" id="blogGrid"></div>
+    </div>
+  </section>
+
+  <section class="testemunhos alt" id="testemunhos" style="display:none;">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow">Testemunhos</p>
+        <h2>O que dizem os nossos clientes</h2>
+      </div>
+      <div class="grid-blog" id="testemunhosGrid"></div>
+    </div>
+  </section>
+
+  <section class="contacto" id="contacto">
+    <div class="wrap">
+      <div class="contact-info reveal">
+        <p class="eyebrow">Contacto</p>
+        <h2 style="font-size:clamp(1.5rem,2.6vw,2.1rem); color:#fff; margin-bottom:1.6rem;">Vamos falar sobre a sua operação de segurança</h2>
+        <div class="item"><div class="lbl">Email</div><div class="val" id="contactoEmail">geral@sec4data.co.ao</div></div>
+        <div class="item"><div class="lbl">Telefone</div><div class="val" id="contactoTelefone">+244 900 000 000</div></div>
+        <div class="item"><div class="lbl">Localização</div><div class="val" id="contactoMorada">Luanda, Angola</div></div>
+      </div>
+      <form class="bracket reveal" id="contactForm">
+        <div class="row-2">
+          <div class="field"><label for="f-nome">Nome *</label><input id="f-nome" name="nome" required></div>
+          <div class="field"><label for="f-email">Email *</label><input id="f-email" name="email" type="email" required></div>
+        </div>
+        <div class="row-2">
+          <div class="field"><label for="f-empresa">Empresa</label><input id="f-empresa" name="empresa"></div>
+          <div class="field">
+            <label for="f-tipo">Tipo de pedido</label>
+            <select id="f-tipo" name="tipo_pedido">
+              <option value="SOC">SOC Gerido</option>
+              <option value="MDR">MDR</option>
+              <option value="Threat Intelligence">Threat Intelligence</option>
+              <option value="Pentest">Penetration Testing</option>
+              <option value="Formação">Formação / Academia</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><label for="f-msg">Mensagem</label><textarea id="f-msg" name="mensagem" rows="4"></textarea></div>
+        <button type="submit" class="btn btn-solid" id="formSubmit">Enviar pedido</button>
+        <div class="form-msg" id="formMsg"></div>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="col" style="max-width:280px;">
+      <a href="#top" class="logo">[<span>SEC</span>4DATA]</a>
+      <p style="color:var(--text-dim); font-size:0.85rem; margin-top:1rem;">Segurança que antecipa a ameaça. SOC, MDR e Threat Intelligence para organizações angolanas e africanas.</p>
+    </div>
+    <div class="col">
+      <h4>Navegação</h4>
+      <a href="#sobre">Sobre</a>
+      <a href="#servicos">Serviços</a>
+      <a href="#produtos">Produtos</a>
+      <a href="#blog">Blog</a>
+    </div>
+    <div class="col">
+      <h4>Serviços</h4>
+      <a href="#servicos">SOC Gerido</a>
+      <a href="#servicos">MDR</a>
+      <a href="#servicos">Threat Intelligence</a>
+      <a href="#servicos">Penetration Testing</a>
+    </div>
+    <div class="col">
+      <h4>Contacto</h4>
+      <span id="footEmail">geral@sec4data.co.ao</span>
+      <span id="footTelefone">+244 900 000 000</span>
+      <a href="#" id="footLinkedin" style="display:none;">LinkedIn</a>
+    </div>
+  </div>
+  <div class="foot-bottom wrap">
+    <span id="footYear"></span> SEC4DATA. Todos os direitos reservados.
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- ícones (SVG inline, mapeados por nome) ---------- */
+  var ICONS = {
+    shield: '<path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5z"/>',
+    radar: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/><line x1="12" y1="12" x2="18.5" y2="6.5"/>',
+    eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+    terminal: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3"/><path d="M13 15h4"/>',
+    alert: '<path d="M12 3 2 21h20z"/><line x1="12" y1="9" x2="12" y2="14"/><circle cx="12" cy="17.3" r="0.6" fill="currentColor" stroke="none"/>',
+    search: '<circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/>',
+    check: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9"/>',
+    book: '<path d="M4 5c3 0 6 1 8 2 2-1 5-2 8-2v14c-3 0-6 1-8 2-2-1-5-2-8-2z"/><line x1="12" y1="7" x2="12" y2="19"/>',
+    database: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
+    activity: '<polyline points="3,12 8,12 10,6 14,18 16,12 21,12"/>',
+    layers: '<polygon points="12,3 21,8 12,13 3,8"/><polyline points="3,15 12,20 21,15"/>',
+    'shield-check': '<path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5z"/><path d="M9 12l2 2 4-4"/>',
+    cpu: '<rect x="6" y="6" width="12" height="12" rx="1"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/>'
+  };
+  function svgIcon(name){
+    var inner = ICONS[name] || ICONS.shield;
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">'+inner+'</svg>';
+  }
+
+  /* ---------- dados de reserva (usados se a API não responder) ---------- */
+  var FALLBACK_SERVICES = [
+    {titulo:"SOC Gerido", descricao:"Monitorização contínua 24/7 com deteção e resposta orquestradas.", icone:"radar"},
+    {titulo:"MDR", descricao:"Deteção e resposta geridas sobre todo o parque tecnológico do cliente.", icone:"shield"},
+    {titulo:"Threat Intelligence", descricao:"Inteligência de ameaças acionável, adaptada ao contexto angolano.", icone:"eye"},
+    {titulo:"Penetration Testing", descricao:"Testes de intrusão ofensivos alinhados com OWASP e PTES.", icone:"terminal"},
+    {titulo:"Resposta a Incidentes", descricao:"Contenção, erradicação e recuperação após incidentes de segurança.", icone:"alert"},
+    {titulo:"Forense Digital", descricao:"Investigação forense de sistemas comprometidos e recolha de prova.", icone:"search"},
+    {titulo:"Compliance", descricao:"Conformidade com a Lei n.º 22/11 e normas internacionais de segurança.", icone:"check"},
+    {titulo:"Formação e Academia", descricao:"Capacitação técnica através da Academia SEC4DATA.", icone:"book"}
+  ];
+  var FALLBACK_PRODUCTS = [
+    {nome:"HIDEN", tagline:"Plataforma de Cyber Threat Intelligence", descricao:"Inteligência de ameaças centralizada, com múltiplas fontes e RBAC.", features:["Feeds de CTI","Correlação de IOCs","RBAC"], icone:"database"},
+    {nome:"Sniffing", tagline:"SIEM / XDR", descricao:"Deteção e resposta alargada com correlação de eventos em tempo real.", features:["SIEM","XDR","Correlação em tempo real"], icone:"activity"},
+    {nome:"SOC Xpert", tagline:"Gestão de Casos", descricao:"Plataforma de gestão de casos e playbooks para operações de SOC.", features:["Gestão de casos","Playbooks","SDK de conectores"], icone:"layers"},
+    {nome:"Fraud Hunter", tagline:"Plataforma Antifraude", descricao:"Deteção de fraude orientada a padrões comportamentais.", features:["Deteção comportamental","Alertas em tempo real","Relatórios"], icone:"shield-check"}
+  ];
+  var FALLBACK_BLOG = [
+    {titulo:"Lei n.º 22/11: o que muda para as empresas angolanas", resumo:"Um guia prático sobre as obrigações de proteção de dados e como preparar a sua organização.", categoria:"Compliance", slug:"lei-22-11"},
+    {titulo:"MDR vs SOC tradicional: qual o modelo certo", resumo:"Comparamos os dois modelos de operação de segurança e quando faz sentido cada um.", categoria:"Operações", slug:"mdr-vs-soc"},
+    {titulo:"Threat Intelligence aplicada ao contexto angolano", resumo:"Como transformar feeds de ameaças em decisões de defesa concretas.", categoria:"Threat Intel", slug:"threat-intel-angola"}
+  ];
+
+  /* ---------- fetch com fallback silencioso ---------- */
+  function fetchPublic(path, fallback){
+    return fetch('/api/public/' + path)
+      .then(function(r){ if(!r.ok) throw new Error('http'); return r.json(); })
+      .then(function(data){ return (Array.isArray(data) && data.length === 0 && fallback) ? fallback : data; })
+      .catch(function(){ return fallback; });
+  }
+
+  function el(tag, cls, html){
+    var e = document.createElement(tag);
+    if(cls) e.className = cls;
+    if(html !== undefined) e.innerHTML = html;
+    return e;
+  }
+
+  function renderServices(list){
+    var grid = document.getElementById('servicosGrid');
+    grid.innerHTML = '';
+    list.forEach(function(s){
+      var card = el('div','bracket reveal');
+      card.innerHTML =
+        '<div class="icon-badge">'+svgIcon(s.icone)+'</div>' +
+        '<div class="card-title"></div>' +
+        '<div class="card-text"></div>';
+      card.querySelector('.card-title').textContent = s.titulo;
+      card.querySelector('.card-text').textContent = s.descricao || '';
+      grid.appendChild(card);
+    });
+    observeReveals();
+  }
+
+  function renderProducts(list){
+    var grid = document.getElementById('produtosGrid');
+    grid.innerHTML = '';
+    list.forEach(function(p){
+      var card = el('div','bracket product-card reveal');
+      var featuresHtml = (p.features||[]).map(function(f){ return '<li></li>'; }).join('');
+      card.innerHTML =
+        '<div class="icon-badge">'+svgIcon(p.icone)+'</div>' +
+        '<div class="tag"></div>' +
+        '<div class="card-title"></div>' +
+        '<div class="card-text"></div>' +
+        '<ul>'+featuresHtml+'</ul>';
+      card.querySelector('.tag').textContent = p.tagline || '';
+      card.querySelector('.card-title').textContent = p.nome;
+      card.querySelector('.card-text').textContent = p.descricao || '';
+      var lis = card.querySelectorAll('ul li');
+      (p.features||[]).forEach(function(f, i){ lis[i].textContent = f; });
+      grid.appendChild(card);
+    });
+    observeReveals();
+  }
+
+  function renderBlog(list){
+    var grid = document.getElementById('blogGrid');
+    grid.innerHTML = '';
+    list.slice(0,3).forEach(function(post){
+      var card = el('article','bracket blog-card reveal');
+      card.innerHTML =
+        '<div class="meta"></div>' +
+        '<div class="card-title"></div>' +
+        '<div class="card-text"></div>' +
+        '<div class="readmore">Ler artigo →</div>';
+      card.querySelector('.meta').textContent = post.categoria || 'Blog';
+      card.querySelector('.card-title').textContent = post.titulo;
+      card.querySelector('.card-text').textContent = post.resumo || '';
+      grid.appendChild(card);
+    });
+    observeReveals();
+  }
+
+  function renderTestimonials(list){
+    if(!list || list.length === 0) return;
+    var section = document.getElementById('testemunhos');
+    var grid = document.getElementById('testemunhosGrid');
+    grid.innerHTML = '';
+    list.forEach(function(t){
+      var card = el('div','bracket testimonial-card reveal');
+      card.innerHTML = '<div class="quote"></div><div class="who"></div>';
+      card.querySelector('.quote').textContent = '"' + t.texto + '"';
+      card.querySelector('.who').textContent = t.nome + (t.empresa ? ' — ' + t.empresa : '');
+      grid.appendChild(card);
+    });
+    section.style.display = 'block';
+    observeReveals();
+  }
+
+  function applySettings(map){
+    if(!map) return;
+    if(map.hero_titulo) document.getElementById('heroTitulo').textContent = map.hero_titulo;
+    if(map.hero_subtitulo) document.getElementById('heroSubtitulo').textContent = map.hero_subtitulo;
+    if(map.contacto_email){
+      document.getElementById('contactoEmail').textContent = map.contacto_email;
+      document.getElementById('footEmail').textContent = map.contacto_email;
+    }
+    if(map.contacto_telefone){
+      document.getElementById('contactoTelefone').textContent = map.contacto_telefone;
+      document.getElementById('footTelefone').textContent = map.contacto_telefone;
+    }
+    if(map.contacto_morada) document.getElementById('contactoMorada').textContent = map.contacto_morada;
+    if(map.linkedin_url){
+      var l = document.getElementById('footLinkedin');
+      l.href = map.linkedin_url; l.style.display = 'block';
+    }
+  }
+
+  /* ---------- reveal on scroll ---------- */
+  var io;
+  function observeReveals(){
+    var items = document.querySelectorAll('.reveal:not(.in)');
+    if(!('IntersectionObserver' in window)){
+      items.forEach(function(i){ i.classList.add('in'); });
+      return;
+    }
+    if(!io){
+      io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+      }, {threshold:0.12});
+    }
+    items.forEach(function(i){ io.observe(i); });
+  }
+
+  /* ---------- nav mobile ---------- */
+  var navToggle = document.getElementById('navToggle');
+  var navLinks = document.getElementById('navLinks');
+  navToggle.addEventListener('click', function(){
+    var open = navLinks.classList.toggle('open');
+    navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  navLinks.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){ navLinks.classList.remove('open'); });
+  });
+
+  /* ---------- formulário de contacto ---------- */
+  var form = document.getElementById('contactForm');
+  var msg = document.getElementById('formMsg');
+  var submitBtn = document.getElementById('formSubmit');
+  form.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    var payload = {
+      nome: form.nome.value.trim(),
+      email: form.email.value.trim(),
+      empresa: form.empresa.value.trim(),
+      tipo_pedido: form.tipo_pedido.value,
+      mensagem: form.mensagem.value.trim()
+    };
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'A enviar…';
+    msg.className = 'form-msg';
+
+    fetch('/api/leads/', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    }).then(function(r){
+      if(!r.ok) throw new Error('http');
+      return r.json();
+    }).then(function(){
+      msg.textContent = 'Pedido enviado. A nossa equipa entrará em contacto em breve.';
+      msg.className = 'form-msg show ok';
+      form.reset();
+    }).catch(function(){
+      msg.textContent = 'Não foi possível enviar agora. Tente novamente ou escreva para ' + (document.getElementById('contactoEmail').textContent || 'geral@sec4data.co.ao') + '.';
+      msg.className = 'form-msg show err';
+    }).finally(function(){
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Enviar pedido';
+    });
+  });
+
+  /* ---------- arranque ---------- */
+  document.getElementById('footYear').textContent = new Date().getFullYear();
+
+  fetchPublic('services', FALLBACK_SERVICES).then(renderServices);
+  fetchPublic('products', FALLBACK_PRODUCTS).then(renderProducts);
+  fetchPublic('blog', FALLBACK_BLOG).then(renderBlog);
+  fetchPublic('testimonials', []).then(renderTestimonials);
+  fetch('/api/public/settings').then(function(r){ if(!r.ok) throw new Error(); return r.json(); }).then(applySettings).catch(function(){});
+
+  observeReveals();
+})();
+</script>
+</body>
+</html>

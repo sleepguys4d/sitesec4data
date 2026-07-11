@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sec4data
+      POSTGRES_PASSWORD: sec4data
+      POSTGRES_DB: sec4data
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sec4data"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://sec4data:sec4data@db:5432/sec4data
+      SECRET_KEY: ${SECRET_KEY:-troque-esta-chave-em-producao}
+      CORS_ORIGINS: '["http://localhost"]'
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  web:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  db_data:

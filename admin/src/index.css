@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.font-display {
+  font-family: 'Orbitron', sans-serif;
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #0891a8; border-radius: 4px; }
+::-webkit-scrollbar-track { background: #0b1116; }
+
+:focus-visible {
+  outline: 2px solid #00e5ff;
+  outline-offset: 2px;
+}
